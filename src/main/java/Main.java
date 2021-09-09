@@ -29,7 +29,7 @@ public class Main {
 //        List<Employee> list = parseCSV(columnMapping, fileName);
 //        String json = listToJson(list);
 //        writeString(json);
-        List<Employee> list = parseXML();
+        List<Employee> list = parseXML("data2.xml");
         String json = listToJson(list);
         writeString(json);
 
@@ -74,29 +74,59 @@ public class Main {
 
     }
 
-    private static List<Employee> parseXML() throws ParserConfigurationException, IOException, SAXException {
-        try {
+    private static List<Employee> parseXML(String fileName) throws ParserConfigurationException, IOException, SAXException {
+        List<Employee> convertedFromXMLList = new ArrayList<>();
+        long id = 0;
+        String firstName = null;
+        String lastName = null;
+        String country = null;
+        int age = 0;
+        try{
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new File("data2.xml"));
+            Document doc = builder.parse(new File(fileName));
 
             Node root = doc.getDocumentElement();
 
-            NodeList nodeList = root.getChildNodes();
+            NodeList employeesList = root.getChildNodes();
+            for(int i = 0; i < employeesList.getLength(); i++){
 
-            ArrayList<Employee> convertedFromXMLList = new ArrayList<>();
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                if (Node.ELEMENT_NODE == node.getNodeType()) {
-                    Element element = (Element) node;
-                    Employee employee = new Employee(
-                            Long.parseLong(element.getAttribute("id")),
-                            element.getAttribute("firstName"),
-                            element.getAttribute("lastName"),
-                            element.getAttribute("country"),
-                            Integer.parseInt(element.getAttribute("age")));
+                if(Node.ELEMENT_NODE == employeesList.item(i).getNodeType()){
+                    NodeList employeesAtributes = employeesList.item(i).getChildNodes();
+
+                    for(int j = 0; j < employeesAtributes.getLength(); j++){
+
+                        if(Node.ELEMENT_NODE == employeesAtributes.item(j).getNodeType()){
+                            switch (employeesAtributes.item(j).getNodeName()){
+                                case "id": {
+                                    id = Long.parseLong(employeesAtributes.item(j).getTextContent());
+                                    break;
+                                }
+                                case "firstName": {
+                                    firstName = employeesAtributes.item(j).getTextContent();
+                                    break;
+                                }
+                                case "lastName": {
+                                    lastName = employeesAtributes.item(j).getTextContent();
+                                    break;
+                                }
+                                case "country": {
+                                    country = employeesAtributes.item(j).getTextContent();
+                                    break;
+                                }
+                                case "age": {
+                                    age = Integer.parseInt(employeesAtributes.item(j).getTextContent());
+                                    break;
+                                }
+                            }
+
+                        }
+                    }
+                    Employee employee = new Employee(id, firstName, lastName, country, age);
                     convertedFromXMLList.add(employee);
                 }
+
+
             }
             return convertedFromXMLList;
         }catch(IOException e){
@@ -106,7 +136,50 @@ public class Main {
         }catch(ParserConfigurationException e){
             throw new ParserConfigurationException();
         }
+
+
     }
+
+
+//    private static List<Employee> parseXML() throws ParserConfigurationException, IOException, SAXException {
+//        try {
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder builder = factory.newDocumentBuilder();
+//            Document doc = builder.parse(new File("data2.xml"));
+//
+//            Node root = doc.getDocumentElement();
+//
+//            NodeList nodeList = root.getChildNodes();
+//
+//            ArrayList<Employee> convertedFromXMLList = new ArrayList<>();
+//            for (int i = 0; i < nodeList.getLength(); i++) {
+//                Node node = nodeList.item(i);
+//                if (Node.ELEMENT_NODE == node.getNodeType()) {
+//                    Element element = (Element) node;
+//                    long id = Long.parseLong(element.getAttribute("id"));
+//                    String firstName = element.getAttribute("firstName");
+//                    String lastName = element.getAttribute("lastName");
+//                    String country = element.getAttribute("country");
+//                    int age = Integer.parseInt(element.getAttribute("age"));
+//                    Employee employee = new Employee(id, firstName, lastName, country, age);
+////                    Employee employee = new Employee(
+////                            Long.parseLong(element.getAttribute("id")),
+////                            element.getAttribute("firstName"),
+////                            element.getAttribute("lastName"),
+////                            element.getAttribute("country"),
+////                            Integer.parseInt(element.getAttribute("age")));
+//                    convertedFromXMLList.add(employee);
+//                }
+//            }
+//            return convertedFromXMLList;
+//        }catch(IOException e){
+//            throw new IOException();
+//        }catch(SAXException e){
+//            throw new SAXException();
+//        }catch(ParserConfigurationException e){
+//            throw new ParserConfigurationException();
+//        }
+//    }
 
 
 }
